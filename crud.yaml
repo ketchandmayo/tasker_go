@@ -1,0 +1,129 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: CRUD
+meta:
+  id: wrk_09795dbfb5034e229888b5d68f50e7cd
+  created: 1765220635285
+  modified: 1765223279328
+  description: ""
+collection:
+  - url: http://localhost:8080/tasks
+    name: Get all
+    meta:
+      id: req_6c92e3e0521d4c0caec2bb6d3bbd4a21
+      created: 1765220635325
+      modified: 1765223209754
+      isPrivate: false
+      description: ""
+      sortKey: -1765220635325
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.1.0
+        description: ""
+        disabled: false
+    scripts:
+      afterResponse: |-
+        
+        insomnia.test('Check if status is 200', () => {
+            insomnia.expect(insomnia.response.code).to.eql(200);
+        });
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/tasks/100
+    name: Get id
+    meta:
+      id: req_5b9c24926180427d8d807b4e9d58b13e
+      created: 1765221494964
+      modified: 1765223180802
+      isPrivate: false
+      description: ""
+      sortKey: -1765221494965
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.1.0
+        description: ""
+        disabled: false
+    scripts:
+      afterResponse: >+
+        insomnia.test('Check if status is 200', () => {
+            insomnia.expect(insomnia.response.code).to.eql(200);
+        });
+
+
+
+        insomnia.test('Check keys', () => {
+
+        		insomnia.expect(insomnia.response.json()).to.be.an('object').that.has.all.keys
+        		(
+        				'ID', 'Title', 'Description', 'Completed'
+        		);
+        });
+
+
+
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/tasks/10
+    name: Get id with error
+    meta:
+      id: req_75f7109539b04435b5ab11ec2cbf4df7
+      created: 1765221761296
+      modified: 1765223223078
+      isPrivate: false
+      description: ""
+      sortKey: -1765221761296
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.1.0
+        description: ""
+        disabled: false
+    scripts:
+      afterResponse: >-
+        insomnia.test('Check if status is 400', () => {
+            insomnia.expect(insomnia.response.code).to.eql(400);
+        });
+
+
+        insomnia.test('Check keys', () => {
+
+        		insomnia.expect(insomnia.response.json()).to.be.an('object').that.has.all.keys
+        		(
+        				'error'
+        		);
+        });
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_8b3e2326b9385ab90b37bd5160ce957eddd04432
+    created: 1765220635320
+    modified: 1765223228443
+environments:
+  name: Base Environment
+  meta:
+    id: env_8b3e2326b9385ab90b37bd5160ce957eddd04432
+    created: 1765220635318
+    modified: 1765223228445
+    isPrivate: false
