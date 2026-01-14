@@ -1,0 +1,69 @@
+PATCH http://localhost:8080/tasks
+Content-Type: application/json
+
+{
+  "id": 9,
+  "title" : "testupdate",
+  "description": "bebebe"
+}
+
+###GET ONE
+GET http://localhost:8080/tasks/9
+Accept: application/json
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+
+    client.test("Response content-type is json", function () {
+        const type = response.contentType.mimeType;
+        client.assert(type === "application/json", `Expected 'application/json' but received '${type}'`);
+    });
+
+    client.test("Headers option exists", function () {
+        client.assert(response.body.hasOwnProperty("id"), "Cannot find 'id' property in response");
+        client.assert(response.body.hasOwnProperty("title"), "Cannot find 'title' property in response");
+        client.assert(response.body.hasOwnProperty("description"), "Cannot find 'description' property in response");
+        client.assert(response.body.hasOwnProperty("status"), "Cannot find 'status' property in response");
+        client.assert(response.body.hasOwnProperty("created_at"), "Cannot find 'created_at' property in response");
+    });
+%}
+
+###GET ALL BY USER
+GET http://localhost:8080/tasks
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+
+    client.test("Response content-type is json", function () {
+        const type = response.contentType.mimeType;
+        client.assert(type === "application/json", `Expected 'application/json' but received '${type}'`);
+    });
+%}
+
+###CREATE TASK
+POST http://localhost:8080/tasks
+Content-Type: application/json
+
+{
+  "title" : "test11",
+  "description": "tututtutu"
+}
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+
+    client.test("Response content-type is json", function () {
+        const type = response.contentType.mimeType;
+        client.assert(type === "application/json", `Expected 'application/json' but received '${type}'`);
+    });
+
+    client.test("Required properties exist", function () {
+        client.assert(response.body.hasOwnProperty("id"), "Cannot find 'id' property in response");
+    });
+%}
