@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 	"tasker_go/internal/config"
-	"tasker_go/internal/dto"
 	"tasker_go/internal/models"
+	"tasker_go/internal/transport/http/dto"
 
 	"github.com/gorilla/mux"
 )
@@ -105,27 +105,22 @@ func UpdateTask(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, response)
 }
 
-func respondWithError(w http.ResponseWriter, code int, message string) {
-	respondWithJSON(w, code, map[string]string{"error": message})
-}
+func DeleteTask(w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
+	userID := uint(1)
 
-func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
-	if payload == nil {
-		payload = []interface{}{}
-	}
-
-	response, err := json.Marshal(payload)
-
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Internal server error"))
+	var task models.Task
+	if err := config.DB.
+		Where("id = ? AND user_id = ?", id, userID).
+		First(&task).Error; err != nil {
+		respondWithError(w, http.StatusNotFound, "task not found")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	_, err = w.Write(response)
-	if err != nil {
+	if err := config.DB.Delete(&task).Error; err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+
+	respondWithJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
 }
