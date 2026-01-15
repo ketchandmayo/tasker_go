@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"tasker_go/internal/config"
 	"tasker_go/internal/models"
-	"tasker_go/internal/router"
+	"tasker_go/internal/transport/http/router"
 )
 
 func main() {
