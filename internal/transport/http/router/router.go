@@ -1,19 +1,20 @@
 package router
 
 import (
+	"net/http"
 	"tasker_go/internal/transport/http/handler"
 
 	"github.com/gorilla/mux"
 )
 
-func MainRouter() *mux.Router {
+func New(h *handler.Handler) http.Handler {
 	r := mux.NewRouter()
 
-	r.HandleFunc("/tasks", handler.GetTasks).Methods("GET")
-	r.HandleFunc("/tasks/{id:[0-9]+}", handler.GetTask).Methods("GET")
-	r.HandleFunc("/tasks", handler.CreateTask).Methods("POST")
-	r.HandleFunc("/tasks/{id:[0-9]+}", handler.UpdateTask).Methods("PATCH")
-	r.HandleFunc("/tasks/{id:[0-9]+}", handler.DeleteTask).Methods("DELETE")
+	r.HandleFunc("/tasks", h.CreateTask).Methods(http.MethodPost)
+	r.HandleFunc("/tasks", h.GetTasks).Methods(http.MethodGet)
+	r.HandleFunc("/tasks/{id}", h.GetTask).Methods(http.MethodGet)
+	r.HandleFunc("/tasks/{id}", h.UpdateTask).Methods(http.MethodPatch)
+	r.HandleFunc("/tasks/{id}", h.DeleteTask).Methods(http.MethodDelete)
 
 	return r
 }

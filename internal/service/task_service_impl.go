@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"tasker_go/internal/transport/http/dto"
 
 	"tasker_go/internal/models"
 	"tasker_go/internal/repository"
@@ -38,17 +39,22 @@ func (s *taskService) Get(ctx context.Context, userID uint, id uint) (*models.Ta
 	return task, nil
 }
 
-func (s *taskService) Update(ctx context.Context, userID uint, task *models.Task) error {
-	existing, err := s.repo.FindByID(ctx, userID, task.ID)
+func (s *taskService) Update(ctx context.Context, userID uint, taskID uint, req *dto.PatchTaskRequest) (*models.Task, error) {
+	existing, err := s.repo.FindByID(ctx, userID, taskID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if existing == nil {
-		return ErrTaskNotFound
+		return nil, ErrTaskNotFound
 	}
 
-	task.UserId = userID
-	return s.repo.Update(ctx, task)
+	req.Apply(existing)
+	err = s.repo.Update(ctx, existing)
+	if err != nil {
+		return nil, err
+	}
+
+	return existing, nil
 }
 
 func (s *taskService) Delete(ctx context.Context, userID uint, id uint) error {

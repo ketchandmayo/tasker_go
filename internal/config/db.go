@@ -8,9 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
-
-func ConnectDB() {
+func ConnectDB() *gorm.DB {
 	dsn := fmt.Sprintf(
 		"host=localhost user=tasker_user password=12345678 dbname=tasker port=5432 sslmode=disable",
 	)
@@ -20,6 +18,6 @@ func ConnectDB() {
 		log.Fatal("Ошибка подключения к БД:", err)
 	}
 
-	DB = db
 	log.Println("PostgreSQL подключён")
+	return db
 }
