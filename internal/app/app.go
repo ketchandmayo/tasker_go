@@ -11,7 +11,8 @@ import (
 )
 
 func Run() {
-	repo := gorm.NewTaskRepository(config.ConnectDB())
+	db := config.ConnectDB()
+	repo := gorm.NewTaskRepository(db)
 	svc := service.NewTaskService(repo)
 	h := handler.New(svc)
 	r := router.New(h)
