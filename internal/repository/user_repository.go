@@ -1,8 +1,11 @@
 package repository
 
-import "tasker_go/internal/models"
+import (
+	"context"
+	"tasker_go/internal/models"
+)
 
 type UserRepository interface {
-	FindByEmail(email string) (*models.User, error)
-	Create(user *models.User) error
+	FindByEmail(ctx context.Context, email string) (*models.User, error)
+	Create(ctx context.Context, user *models.User) error
 }
