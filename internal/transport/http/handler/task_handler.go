@@ -13,6 +13,16 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type Handler struct {
+	taskService service.TaskService
+}
+
+func NewTaskHandler(taskService service.TaskService) *Handler {
+	return &Handler{
+		taskService: taskService,
+	}
+}
+
 func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	userID := uint(1) // позже достанем из ctx
 

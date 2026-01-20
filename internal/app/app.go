@@ -15,7 +15,7 @@ func Run() {
 	taskRepo := gorm.NewTaskRepository(db)
 	//userRepo := gorm.NewUserRepository(db)
 	svc := service.NewTaskService(taskRepo)
-	h := handler.New(svc)
+	h := handler.NewTaskHandler(svc)
 	r := router.New(h)
 
 	err := http.ListenAndServe(":8080", r)
