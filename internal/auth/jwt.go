@@ -1,12 +1,14 @@
 package auth
 
 import (
+	"errors"
+	"tasker_go/internal/config/jwt_config"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var secret = []byte("super-secret")
+var secret = jwt_config.Secret
 
 func GenerateJWT(userID uint) (string, error) {
 	claims := jwt.MapClaims{
@@ -16,4 +18,22 @@ func GenerateJWT(userID uint) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(secret)
+}
+
+func ParseJWT(tokenStr string) (uint, error) {
+	token, err := jwt.Parse(
+		tokenStr,
+		func(t *jwt.Token) (any, error) {
+			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, errors.New("unexpected signing method")
+			}
+			return secret, nil
+		})
+	if err != nil || !token.Valid {
+		return 0, errors.New("invalid token")
+	}
+
+	claims := token.Claims.(jwt.MapClaims)
+	userID := uint(claims["user_id"].(float64))
+	return userID, nil
 }
