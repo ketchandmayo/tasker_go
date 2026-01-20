@@ -13,10 +13,15 @@ import (
 func Run() {
 	db := config.ConnectDB()
 	taskRepo := gorm.NewTaskRepository(db)
-	//userRepo := gorm.NewUserRepository(db)
-	svc := service.NewTaskService(taskRepo)
-	h := handler.NewTaskHandler(svc)
-	r := router.New(h)
+	userRepo := gorm.NewUserRepository(db)
+
+	taskService := service.NewTaskService(taskRepo)
+	authService := service.NewAuthService(userRepo)
+
+	taskHandler := handler.NewTaskHandler(taskService)
+	authHandler := handler.NewAuthHandler(authService)
+
+	r := router.New(taskHandler, authHandler)
 
 	err := http.ListenAndServe(":8080", r)
 	if err != nil {
