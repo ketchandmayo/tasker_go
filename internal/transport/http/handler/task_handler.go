@@ -13,17 +13,17 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type Handler struct {
+type TaskHandler struct {
 	taskService service.TaskService
 }
 
-func NewTaskHandler(taskService service.TaskService) *Handler {
-	return &Handler{
+func NewTaskHandler(taskService service.TaskService) *TaskHandler {
+	return &TaskHandler{
 		taskService: taskService,
 	}
 }
 
-func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
+func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	userID := uint(1) // позже достанем из ctx
 
 	var req dto.CreateTaskRequest
@@ -48,7 +48,7 @@ func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusCreated, map[string]uint{"id": id})
 }
 
-func (h *Handler) GetTasks(w http.ResponseWriter, r *http.Request) {
+func (h *TaskHandler) GetTasks(w http.ResponseWriter, r *http.Request) {
 	userID := uint(1)
 
 	tasks, err := h.taskService.List(r.Context(), userID)
@@ -65,7 +65,7 @@ func (h *Handler) GetTasks(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, resp)
 }
 
-func (h *Handler) GetTask(w http.ResponseWriter, r *http.Request) {
+func (h *TaskHandler) GetTask(w http.ResponseWriter, r *http.Request) {
 	userID := uint(1)
 
 	id, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
@@ -88,7 +88,7 @@ func (h *Handler) GetTask(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, resp)
 }
 
-func (h *Handler) UpdateTask(w http.ResponseWriter, r *http.Request) {
+func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	userID := uint(1)
 
 	id, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
@@ -122,7 +122,7 @@ func (h *Handler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, resp)
 }
 
-func (h *Handler) DeleteTask(w http.ResponseWriter, r *http.Request) {
+func (h *TaskHandler) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	userID := uint(1)
 
 	id, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
