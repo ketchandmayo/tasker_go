@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"tasker_go/internal/auth"
 	"tasker_go/internal/models"
@@ -15,7 +16,7 @@ func NewAuthService(users repository.UserRepository) AuthService {
 	return &authService{users: users}
 }
 
-func (s *authService) Register(email, password string) error {
+func (s *authService) Register(ctx context.Context, email, password string) error {
 	hash, err := auth.HashPassword(password)
 	if err != nil {
 		return err
@@ -26,11 +27,11 @@ func (s *authService) Register(email, password string) error {
 		Password: hash,
 	}
 
-	return s.users.Create(user)
+	return s.users.Create(ctx, user)
 }
 
-func (s *authService) Login(email, password string) (string, error) {
-	user, err := s.users.FindByEmail(email)
+func (s *authService) Login(ctx context.Context, email, password string) (string, error) {
+	user, err := s.users.FindByEmail(ctx, email)
 	if err != nil || !auth.CheckPassword(password, user.Password) {
 		return "", errors.New("invalid credentials")
 	}

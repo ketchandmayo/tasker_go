@@ -1,6 +1,8 @@
 package service
 
+import "context"
+
 type AuthService interface {
-	Register(email, password string) error
-	Login(email, password string) (string, error) // JWT
+	Register(ctx context.Context, email, password string) error
+	Login(ctx context.Context, email, password string) (string, error)
 }
