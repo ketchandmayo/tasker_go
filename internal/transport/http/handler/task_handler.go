@@ -1,12 +1,14 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
 	"tasker_go/internal/service"
 	"tasker_go/internal/transport/http/dto"
+	"tasker_go/internal/transport/http/middleware"
 
 	"github.com/gorilla/mux"
 )
@@ -130,4 +132,12 @@ func (h *Handler) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondWithJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
+}
+
+func UserIDFromContext(ctx context.Context) uint {
+	id, ok := ctx.Value(middleware.UserIDKey).(uint)
+	if !ok {
+		panic("userID not found in context")
+	}
+	return id
 }
