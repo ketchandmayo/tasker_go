@@ -25,7 +25,7 @@ func NewTaskHandler(taskService service.TaskService) *TaskHandler {
 }
 
 func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
-	userID := uint(1) // позже достанем из ctx
+	userID := UserIDFromContext(r.Context())
 
 	var req dto.CreateTaskRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -50,7 +50,7 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TaskHandler) GetTasks(w http.ResponseWriter, r *http.Request) {
-	userID := uint(1)
+	userID := UserIDFromContext(r.Context())
 
 	tasks, err := h.taskService.List(r.Context(), userID)
 	if err != nil {
@@ -67,7 +67,7 @@ func (h *TaskHandler) GetTasks(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TaskHandler) GetTask(w http.ResponseWriter, r *http.Request) {
-	userID := uint(1)
+	userID := UserIDFromContext(r.Context())
 
 	id, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
 	if err != nil {
@@ -90,7 +90,7 @@ func (h *TaskHandler) GetTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
-	userID := uint(1)
+	userID := UserIDFromContext(r.Context())
 
 	id, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
 	if err != nil {
@@ -124,7 +124,7 @@ func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TaskHandler) DeleteTask(w http.ResponseWriter, r *http.Request) {
-	userID := uint(1)
+	userID := UserIDFromContext(r.Context())
 
 	id, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
 	if err != nil {
