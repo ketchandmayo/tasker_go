@@ -2,9 +2,11 @@ package gorm
 
 import (
 	"context"
+	"errors"
 	"tasker_go/internal/models"
 	"tasker_go/internal/repository"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"gorm.io/gorm"
 )
 
@@ -25,5 +27,15 @@ func (r *userRepository) FindByEmail(ctx context.Context, email string) (*models
 }
 
 func (r *userRepository) Create(ctx context.Context, user *models.User) error {
-	return r.db.WithContext(ctx).Create(user).Error
+	err := r.db.WithContext(ctx).Create(user).Error
+	if err == nil {
+		return nil
+	}
+
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+		return repository.ErrEmailAlreadyExists
+	}
+
+	return repository.ErrInternal
 }

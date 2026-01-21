@@ -9,6 +9,5 @@ func (r CreateUserRequest) ToModel() models.User {
 	return models.User{
 		Email:    strings.TrimSpace(r.Email),
 		Password: r.Password,
-		Status:   "user",
 	}
 }

@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"tasker_go/internal/auth"
-	"tasker_go/internal/models"
 	"tasker_go/internal/repository"
+	"tasker_go/internal/transport/http/dto"
 )
 
 type authService struct {
@@ -16,18 +16,14 @@ func NewAuthService(users repository.UserRepository) AuthService {
 	return &authService{users: users}
 }
 
-func (s *authService) Register(ctx context.Context, email, password string) error {
-	hash, err := auth.HashPassword(password)
-	if err != nil {
+func (s *authService) Register(ctx context.Context, req *dto.CreateUserRequest) error {
+	var err error
+	if req.Password, err = auth.HashPassword(req.Password); err != nil {
 		return err
 	}
 
-	user := &models.User{
-		Email:    email,
-		Password: hash,
-	}
-
-	return s.users.Create(ctx, user)
+	user := req.ToModel()
+	return s.users.Create(ctx, &user)
 }
 
 func (s *authService) Login(ctx context.Context, email, password string) (string, error) {

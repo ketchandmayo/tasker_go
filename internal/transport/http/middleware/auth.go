@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 	"tasker_go/internal/auth"
+	"tasker_go/internal/transport/http/responder"
 )
 
 type ctxKey string
@@ -15,14 +16,14 @@ func Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		h := r.Header.Get("Authorization")
 		if !strings.HasPrefix(h, "Bearer ") {
-			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			responder.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 			return
 		}
 
 		token := strings.TrimPrefix(h, "Bearer ")
 		userID, err := auth.ParseJWT(token)
 		if err != nil {
-			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			responder.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 			return
 		}
 

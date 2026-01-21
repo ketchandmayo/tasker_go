@@ -1,8 +1,11 @@
 package service
 
-import "context"
+import (
+	"context"
+	"tasker_go/internal/transport/http/dto"
+)
 
 type AuthService interface {
-	Register(ctx context.Context, email, password string) error
+	Register(ctx context.Context, req *dto.CreateUserRequest) error
 	Login(ctx context.Context, email, password string) (string, error)
 }

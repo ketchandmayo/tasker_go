@@ -9,6 +9,7 @@ import (
 	"tasker_go/internal/service"
 	"tasker_go/internal/transport/http/dto"
 	"tasker_go/internal/transport/http/middleware"
+	"tasker_go/internal/transport/http/responder"
 
 	"github.com/gorilla/mux"
 )
@@ -28,12 +29,12 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 
 	var req dto.CreateTaskRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		respondWithError(w, http.StatusBadRequest, "invalid json")
+		responder.RespondWithError(w, http.StatusBadRequest, "invalid json")
 		return
 	}
 
 	if err := dto.Validate.Struct(req); err != nil {
-		respondWithError(w, http.StatusBadRequest, dto.FormatValidationError(err))
+		responder.RespondWithError(w, http.StatusBadRequest, dto.FormatValidationError(err))
 		return
 	}
 
@@ -41,11 +42,11 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 
 	id, err := h.taskService.Create(r.Context(), userID, &task)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "internal error")
+		responder.RespondWithError(w, http.StatusInternalServerError, "internal error")
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, map[string]uint{"id": id})
+	responder.RespondWithJSON(w, http.StatusCreated, map[string]uint{"id": id})
 }
 
 func (h *TaskHandler) GetTasks(w http.ResponseWriter, r *http.Request) {
@@ -53,7 +54,7 @@ func (h *TaskHandler) GetTasks(w http.ResponseWriter, r *http.Request) {
 
 	tasks, err := h.taskService.List(r.Context(), userID)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "internal error")
+		responder.RespondWithError(w, http.StatusInternalServerError, "internal error")
 		return
 	}
 
@@ -62,7 +63,7 @@ func (h *TaskHandler) GetTasks(w http.ResponseWriter, r *http.Request) {
 		resp = append(resp, dto.TaskToListItem(t))
 	}
 
-	respondWithJSON(w, http.StatusOK, resp)
+	responder.RespondWithJSON(w, http.StatusOK, resp)
 }
 
 func (h *TaskHandler) GetTask(w http.ResponseWriter, r *http.Request) {
@@ -70,22 +71,22 @@ func (h *TaskHandler) GetTask(w http.ResponseWriter, r *http.Request) {
 
 	id, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "invalid id")
+		responder.RespondWithError(w, http.StatusBadRequest, "invalid id")
 		return
 	}
 
 	task, err := h.taskService.Get(r.Context(), userID, uint(id))
 	if err != nil {
 		if errors.Is(err, service.ErrTaskNotFound) {
-			respondWithError(w, http.StatusNotFound, "task not found")
+			responder.RespondWithError(w, http.StatusNotFound, "task not found")
 			return
 		}
-		respondWithError(w, http.StatusInternalServerError, "internal error")
+		responder.RespondWithError(w, http.StatusInternalServerError, "internal error")
 		return
 	}
 
 	resp := dto.TaskToDetailResponse(*task)
-	respondWithJSON(w, http.StatusOK, resp)
+	responder.RespondWithJSON(w, http.StatusOK, resp)
 }
 
 func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
@@ -93,33 +94,33 @@ func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 
 	id, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "invalid id")
+		responder.RespondWithError(w, http.StatusBadRequest, "invalid id")
 		return
 	}
 
 	var req dto.PatchTaskRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		respondWithError(w, http.StatusBadRequest, "invalid json")
+		responder.RespondWithError(w, http.StatusBadRequest, "invalid json")
 		return
 	}
 
 	if err := dto.Validate.Struct(req); err != nil {
-		respondWithError(w, http.StatusBadRequest, dto.FormatValidationError(err))
+		responder.RespondWithError(w, http.StatusBadRequest, dto.FormatValidationError(err))
 		return
 	}
 
 	task, err := h.taskService.Update(r.Context(), userID, uint(id), &req)
 	if err != nil {
 		if errors.Is(err, service.ErrTaskNotFound) {
-			respondWithError(w, http.StatusNotFound, "task not found")
+			responder.RespondWithError(w, http.StatusNotFound, "task not found")
 			return
 		}
-		respondWithError(w, http.StatusInternalServerError, "internal error")
+		responder.RespondWithError(w, http.StatusInternalServerError, "internal error")
 		return
 	}
 
 	resp := dto.TaskToDetailResponse(*task)
-	respondWithJSON(w, http.StatusOK, resp)
+	responder.RespondWithJSON(w, http.StatusOK, resp)
 }
 
 func (h *TaskHandler) DeleteTask(w http.ResponseWriter, r *http.Request) {
@@ -127,21 +128,21 @@ func (h *TaskHandler) DeleteTask(w http.ResponseWriter, r *http.Request) {
 
 	id, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "invalid id")
+		responder.RespondWithError(w, http.StatusBadRequest, "invalid id")
 		return
 	}
 
 	err = h.taskService.Delete(r.Context(), userID, uint(id))
 	if err != nil {
 		if errors.Is(err, service.ErrTaskNotFound) {
-			respondWithError(w, http.StatusNotFound, "task not found")
+			responder.RespondWithError(w, http.StatusNotFound, "task not found")
 			return
 		}
-		respondWithError(w, http.StatusInternalServerError, "internal error")
+		responder.RespondWithError(w, http.StatusInternalServerError, "internal error")
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
+	responder.RespondWithJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
 }
 
 func UserIDFromContext(ctx context.Context) uint {
