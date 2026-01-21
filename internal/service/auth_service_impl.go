@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 	"tasker_go/internal/auth"
 	"tasker_go/internal/repository"
 	"tasker_go/internal/transport/http/dto"
@@ -29,7 +28,7 @@ func (s *authService) Register(ctx context.Context, req *dto.CreateUserRequest) 
 func (s *authService) Login(ctx context.Context, email, password string) (string, error) {
 	user, err := s.users.FindByEmail(ctx, email)
 	if err != nil || !auth.CheckPassword(password, user.Password) {
-		return "", errors.New("invalid credentials")
+		return "", auth.ErrInvalidCredentials
 	}
 
 	return auth.GenerateJWT(user.ID)
