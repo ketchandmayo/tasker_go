@@ -21,19 +21,27 @@ func GenerateJWT(userID uint) (string, error) {
 }
 
 func ParseJWT(tokenStr string) (uint, error) {
-	token, err := jwt.Parse(
+	token, err := jwt.ParseWithClaims(
 		tokenStr,
+		jwt.MapClaims{},
 		func(t *jwt.Token) (any, error) {
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, errors.New("unexpected signing method")
 			}
 			return secret, nil
-		})
+		},
+	)
+
 	if err != nil || !token.Valid {
 		return 0, errors.New("invalid token")
 	}
 
 	claims := token.Claims.(jwt.MapClaims)
-	userID := uint(claims["user_id"].(float64))
-	return userID, nil
+
+	userIDFloat, ok := claims["user_id"].(float64)
+	if !ok {
+		return 0, errors.New("user_id missing or invalid")
+	}
+
+	return uint(userIDFloat), nil
 }
