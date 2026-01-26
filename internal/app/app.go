@@ -8,6 +8,8 @@ import (
 	"tasker_go/internal/service"
 	"tasker_go/internal/transport/http/handler"
 	"tasker_go/internal/transport/http/router"
+
+	"github.com/rs/cors"
 )
 
 func Run() {
@@ -23,8 +25,27 @@ func Run() {
 
 	r := router.New(taskHandler, authHandler)
 
-	err := http.ListenAndServe(":8080", r)
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{
+			"http://localhost:3000",
+			"http://localhost:63342",
+		},
+		AllowedMethods: []string{
+			http.MethodGet,
+			http.MethodPost,
+			http.MethodPatch,
+			http.MethodDelete,
+			http.MethodOptions,
+		},
+		AllowedHeaders: []string{
+			"Authorization",
+			"Content-Type",
+		},
+	})
+
+	err := http.ListenAndServe(":8080", c.Handler(r))
 	if err != nil {
 		log.Printf("Server error")
 	}
+
 }
