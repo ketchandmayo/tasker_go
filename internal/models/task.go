@@ -9,4 +9,5 @@ type Task struct {
 	Description string
 	Status      string `gorm:"default:'new'"`
 	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
