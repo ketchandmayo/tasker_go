@@ -22,8 +22,9 @@ func Run() {
 
 	taskHandler := handler.NewTaskHandler(taskService)
 	authHandler := handler.NewAuthHandler(authService)
+	judgeHandler := handler.NewJudgeHandler()
 
-	r := router.New(taskHandler, authHandler)
+	r := router.New(taskHandler, authHandler, judgeHandler)
 
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{

@@ -8,7 +8,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func New(taskHandler *handler.TaskHandler, authHandler *handler.AuthHandler) http.Handler {
+func New(taskHandler *handler.TaskHandler, authHandler *handler.AuthHandler, judgeHandler *handler.JudgeHandler) http.Handler {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/login", authHandler.Login).Methods(http.MethodPost)
@@ -22,6 +22,7 @@ func New(taskHandler *handler.TaskHandler, authHandler *handler.AuthHandler) htt
 	auth.HandleFunc("/tasks/{id}", taskHandler.GetTask).Methods(http.MethodGet)
 	auth.HandleFunc("/tasks/{id}", taskHandler.UpdateTask).Methods(http.MethodPatch)
 	auth.HandleFunc("/tasks/{id}", taskHandler.DeleteTask).Methods(http.MethodDelete)
+	auth.HandleFunc("/tasks/{id}/judge", judgeHandler.GetJudge).Methods(http.MethodGet)
 
 	return r
 }
