@@ -19,7 +19,7 @@ func ConnectDB() *gorm.DB {
 		log.Fatal("Ошибка подключения к БД:", err)
 	}
 
-	err = db.AutoMigrate(&models.Task{}, &models.User{})
+	err = db.AutoMigrate(&models.Task{}, &models.User{}, &models.Judge{})
 	if err != nil {
 		log.Fatal("Migration error")
 	}
