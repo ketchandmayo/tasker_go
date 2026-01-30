@@ -2,13 +2,13 @@ package auth
 
 import (
 	"errors"
-	"tasker_go/internal/config/jwt_config"
+	"tasker_go/internal/config"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var secret = jwt_config.Secret
+var secret = config.JWTSecret
 
 func GenerateJWT(userID uint) (string, error) {
 	claims := jwt.MapClaims{
