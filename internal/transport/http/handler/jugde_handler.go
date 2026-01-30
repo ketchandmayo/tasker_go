@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"tasker_go/internal/service"
+	"tasker_go/internal/transport/http/dto"
 	"tasker_go/internal/transport/http/responder"
 
 	"github.com/gorilla/mux"
@@ -42,7 +43,7 @@ func (h *JudgeHandler) GetJudge(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+	res := dto.JudgeToResponse(judge)
 
-	responder.RespondWithJSON(w, http.StatusOK, dto.JudgeToResponse(judge))
-
+	responder.RespondWithJSON(w, http.StatusOK, res)
 }
