@@ -1,1 +1,3 @@
 internal/config/jwt_config/jwt.go
+.env
+/.idea/inspectionProfiles/Project_Default.xml
