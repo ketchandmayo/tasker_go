@@ -31,12 +31,11 @@ func (j *judgeService) GetByTaskID(ctx context.Context, userId uint, taskId uint
 	taskHash := fingerprint(task)
 
 	existingJudge, err := j.judgeRepo.FindByTaskID(ctx, task.ID)
-	if err != nil {
-		return nil, ErrTaskNotFound
-	}
 
-	if existingJudge.TaskHash == taskHash {
-		return existingJudge, nil
+	if existingJudge != nil {
+		if existingJudge.TaskHash == taskHash {
+			return existingJudge, nil
+		}
 	}
 
 	score, text, err := j.analyzer.Analyze(ctx, task)
@@ -55,7 +54,7 @@ func (j *judgeService) GetByTaskID(ctx context.Context, userId uint, taskId uint
 		return nil, err
 	}
 
-	return existingJudge, nil
+	return &judge, nil
 }
 
 func fingerprint(t *models.Task) string {
