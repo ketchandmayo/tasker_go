@@ -24,7 +24,7 @@ func ConnectDB() *gorm.DB {
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal("Ошибка подключения к БД:", err)
+		log.Fatal("Ошибка подключения к БД: ", err)
 	}
 
 	err = db.AutoMigrate(&models.Task{}, &models.User{}, &models.Judge{})

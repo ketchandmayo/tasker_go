@@ -3,7 +3,6 @@ package gemini
 import (
 	"context"
 	"errors"
-	"log"
 	"os"
 	"tasker_go/internal/llm"
 
@@ -40,7 +39,6 @@ func (c *lLMClient) Generate(ctx context.Context, prompt string) (string, error)
 		nil,
 	)
 	if err != nil {
-		log.Printf(err.Error())
 		return "", err
 	}
 
