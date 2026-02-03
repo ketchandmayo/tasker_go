@@ -46,7 +46,7 @@ func (j judgeAnalyzer) Analyze(ctx context.Context, task *models.Task) (score ui
 		score--
 	}
 
-	if task.Status == "done" && score < 10 {
+	if task.Status == "done" {
 		score++
 	}
 
