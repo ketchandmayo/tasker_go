@@ -8,4 +8,5 @@ import (
 type JudgeRepository interface {
 	FindByTaskID(ctx context.Context, taskID uint) (*models.Judge, error)
 	Create(ctx context.Context, judge *models.Judge) error
+	Update(ctx context.Context, judge *models.Judge) error
 }
