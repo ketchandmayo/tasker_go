@@ -35,3 +35,9 @@ func (j judgeRepository) Create(ctx context.Context, judge *models.Judge) error 
 		Create(judge).
 		Error
 }
+
+func (j judgeRepository) Update(ctx context.Context, judge *models.Judge) error {
+	return j.db.WithContext(ctx).
+		Save(judge).
+		Error
+}

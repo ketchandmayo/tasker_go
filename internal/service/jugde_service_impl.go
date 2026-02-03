@@ -4,9 +4,12 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"tasker_go/internal/analysis"
 	"tasker_go/internal/models"
 	"tasker_go/internal/repository"
+
+	"gorm.io/gorm"
 )
 
 type judgeService struct {
@@ -31,6 +34,9 @@ func (j *judgeService) GetByTaskID(ctx context.Context, userId uint, taskId uint
 	taskHash := fingerprint(task)
 
 	existingJudge, err := j.judgeRepo.FindByTaskID(ctx, task.ID)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
 
 	if existingJudge != nil {
 		if existingJudge.TaskHash == taskHash {
@@ -48,6 +54,18 @@ func (j *judgeService) GetByTaskID(ctx context.Context, userId uint, taskId uint
 		TaskHash: taskHash,
 		Score:    score,
 		Text:     text,
+	}
+
+	if existingJudge != nil {
+		existingJudge.TaskHash = taskHash
+		existingJudge.Score = score
+		existingJudge.Text = text
+
+		if err := j.judgeRepo.Update(ctx, existingJudge); err != nil {
+			return nil, err
+		}
+
+		return existingJudge, nil
 	}
 
 	if err := j.judgeRepo.Create(ctx, &judge); err != nil {
