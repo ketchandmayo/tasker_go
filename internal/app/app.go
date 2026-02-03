@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
 	"tasker_go/internal/analysis"
 	"tasker_go/internal/config"
 	"tasker_go/internal/llm/gemini"
@@ -62,7 +63,12 @@ func Run() {
 		},
 	})
 
-	err = http.ListenAndServe(":8080", c.Handler(r))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	err = http.ListenAndServe(":"+port, c.Handler(r))
 	if err != nil {
 		log.Printf("Server error: %v", err)
 	}

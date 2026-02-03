@@ -56,18 +56,6 @@ func (j *judgeService) GetByTaskID(ctx context.Context, userId uint, taskId uint
 		Text:     text,
 	}
 
-	if existingJudge != nil {
-		existingJudge.TaskHash = taskHash
-		existingJudge.Score = score
-		existingJudge.Text = text
-
-		if err := j.judgeRepo.Update(ctx, existingJudge); err != nil {
-			return nil, err
-		}
-
-		return existingJudge, nil
-	}
-
 	if err := j.judgeRepo.Create(ctx, &judge); err != nil {
 		return nil, err
 	}

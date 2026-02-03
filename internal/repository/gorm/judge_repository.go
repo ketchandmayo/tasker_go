@@ -20,7 +20,7 @@ func (j judgeRepository) FindByTaskID(ctx context.Context, taskID uint) (*models
 
 	err := j.db.WithContext(ctx).
 		Where("task_id = ?", taskID).
-		First(&judge).
+		Last(&judge).
 		Error
 
 	if err != nil {
@@ -33,11 +33,5 @@ func (j judgeRepository) FindByTaskID(ctx context.Context, taskID uint) (*models
 func (j judgeRepository) Create(ctx context.Context, judge *models.Judge) error {
 	return j.db.WithContext(ctx).
 		Create(judge).
-		Error
-}
-
-func (j judgeRepository) Update(ctx context.Context, judge *models.Judge) error {
-	return j.db.WithContext(ctx).
-		Save(judge).
 		Error
 }
