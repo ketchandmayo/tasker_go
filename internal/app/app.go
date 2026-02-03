@@ -64,7 +64,7 @@ func Run() {
 
 	err = http.ListenAndServe(":8080", c.Handler(r))
 	if err != nil {
-		log.Printf("Server error")
+		log.Printf("Server error: %v", err)
 	}
 
 }
