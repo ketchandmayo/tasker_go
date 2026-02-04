@@ -31,7 +31,7 @@ func (h *JudgeHandler) GetJudge(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	judge, err := h.judgeService.GetByTaskID(ctx, userID, uint(taskId))
+	judge, preliminary, err := h.judgeService.GetByTaskID(ctx, userID, uint(taskId))
 	if err != nil {
 		switch {
 		case errors.Is(err, service.ErrTaskNotFound):
@@ -43,7 +43,7 @@ func (h *JudgeHandler) GetJudge(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	res := dto.JudgeToResponse(judge)
+	res := dto.JudgeToResponse(judge, preliminary)
 
 	responder.RespondWithJSON(w, http.StatusOK, res)
 }
