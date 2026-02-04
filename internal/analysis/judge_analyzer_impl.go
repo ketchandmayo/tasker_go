@@ -31,12 +31,29 @@ func NewJudgeAnalyzer(llm llm.LLMClient) JudgeAnalyzer {
 //}'
 
 func (j judgeAnalyzer) Analyze(ctx context.Context, task *models.Task) (score uint, text string, err error) {
-	// 1️⃣ Нормализация входных данных
+	score = ScoreTask(task)
 	title := strings.TrimSpace(task.Title)
 	desc := strings.TrimSpace(task.Description)
 
-	// 2️⃣ Базовый score (детерминированная бизнес-эвристика)
-	score = 5
+	prompt := buildJudgePrompt(title, desc, task.Status, score)
+
+	if j.llm != nil {
+		text, err = j.llm.Generate(ctx, prompt)
+		if err != nil {
+			return 0, "", err
+		}
+	} else {
+		text = fallbackJudgeComment(score)
+	}
+
+	return score, text, nil
+}
+
+func ScoreTask(task *models.Task) uint {
+	title := strings.TrimSpace(task.Title)
+	desc := strings.TrimSpace(task.Description)
+
+	score := uint(5)
 
 	if title == "" {
 		score = 1
@@ -57,18 +74,13 @@ func (j judgeAnalyzer) Analyze(ctx context.Context, task *models.Task) (score ui
 		score = 10
 	}
 
-	prompt := buildJudgePrompt(title, desc, task.Status, score)
+	return score
+}
 
-	if j.llm != nil {
-		text, err = j.llm.Generate(ctx, prompt)
-		if err != nil {
-			return 0, "", err
-		}
-	} else {
-		text = fallbackJudgeComment(score)
-	}
-
-	return score, text, nil
+func PreliminaryJudge(task *models.Task) (score uint, text string) {
+	score = ScoreTask(task)
+	text = fallbackJudgeComment(score)
+	return score, text
 }
 
 func buildJudgePrompt(title, desc, status string, score uint) string {
