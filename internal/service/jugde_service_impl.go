@@ -8,6 +8,7 @@ import (
 	"tasker_go/internal/analysis"
 	"tasker_go/internal/models"
 	"tasker_go/internal/repository"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -18,6 +19,8 @@ type judgeService struct {
 	analyzer  analysis.JudgeAnalyzer
 }
 
+const judgeGenerationCooldown = time.Minute
+
 func NewJudgeService(tRepo repository.TaskRepository, jRepo repository.JudgeRepository, analyzer analysis.JudgeAnalyzer) JudgeService {
 	return &judgeService{
 		taskRepo:  tRepo,
@@ -26,21 +29,21 @@ func NewJudgeService(tRepo repository.TaskRepository, jRepo repository.JudgeRepo
 	}
 }
 
-func (j *judgeService) GetByTaskID(ctx context.Context, userId uint, taskId uint) (*models.Judge, error) {
+func (j *judgeService) GetByTaskID(ctx context.Context, userId uint, taskId uint) (*models.Judge, bool, error) {
 	task, err := j.taskRepo.FindByID(ctx, userId, taskId)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 	taskHash := fingerprint(task)
 
 	existingJudge, err := j.judgeRepo.FindByTaskID(ctx, task.ID)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, err
+		return nil, false, err
 	}
 
 	if existingJudge != nil {
 		if existingJudge.TaskHash == taskHash {
-			return existingJudge, nil
+			return existingJudge, false, nil
 		}
 	}
 
@@ -54,7 +57,7 @@ func (j *judgeService) GetByTaskID(ctx context.Context, userId uint, taskId uint
 
 	go j.generateAndStoreJudge(task, taskHash)
 
-	return &judge, nil
+	return &judge, true, nil
 }
 
 func (j *judgeService) generateAndStoreJudge(task *models.Task, taskHash string) {
@@ -65,6 +68,9 @@ func (j *judgeService) generateAndStoreJudge(task *models.Task, taskHash string)
 		return
 	}
 	if existingJudge != nil && existingJudge.TaskHash == taskHash {
+		return
+	}
+	if existingJudge != nil && time.Since(existingJudge.CreatedAt) < judgeGenerationCooldown {
 		return
 	}
 

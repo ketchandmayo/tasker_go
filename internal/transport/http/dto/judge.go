@@ -1,7 +1,8 @@
 package dto
 
 type JudgeResponse struct {
-	TaskID uint   `json:"task_id"`
-	Score  uint   `json:"score"`
-	Text   string `json:"text"`
+	TaskID      uint   `json:"task_id"`
+	Score       uint   `json:"score"`
+	Text        string `json:"text"`
+	Preliminary bool   `json:"preliminary"`
 }
