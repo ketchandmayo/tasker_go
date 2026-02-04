@@ -44,9 +44,33 @@ func (j *judgeService) GetByTaskID(ctx context.Context, userId uint, taskId uint
 		}
 	}
 
+	score, text := analysis.PreliminaryJudge(task)
+	judge := models.Judge{
+		TaskID:   task.ID,
+		TaskHash: taskHash,
+		Score:    score,
+		Text:     text,
+	}
+
+	go j.generateAndStoreJudge(task, taskHash)
+
+	return &judge, nil
+}
+
+func (j *judgeService) generateAndStoreJudge(task *models.Task, taskHash string) {
+	ctx := context.Background()
+
+	existingJudge, err := j.judgeRepo.FindByTaskID(ctx, task.ID)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return
+	}
+	if existingJudge != nil && existingJudge.TaskHash == taskHash {
+		return
+	}
+
 	score, text, err := j.analyzer.Analyze(ctx, task)
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	judge := models.Judge{
@@ -56,11 +80,7 @@ func (j *judgeService) GetByTaskID(ctx context.Context, userId uint, taskId uint
 		Text:     text,
 	}
 
-	if err := j.judgeRepo.Create(ctx, &judge); err != nil {
-		return nil, err
-	}
-
-	return &judge, nil
+	_ = j.judgeRepo.Create(ctx, &judge)
 }
 
 func fingerprint(t *models.Task) string {
