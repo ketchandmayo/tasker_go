@@ -19,7 +19,7 @@ type judgeService struct {
 	analyzer  analysis.JudgeAnalyzer
 }
 
-const judgeGenerationCooldown = time.Minute
+const judgeGenerationCooldown = time.Second * 30
 
 func NewJudgeService(tRepo repository.TaskRepository, jRepo repository.JudgeRepository, analyzer analysis.JudgeAnalyzer) JudgeService {
 	return &judgeService{
@@ -47,7 +47,7 @@ func (j *judgeService) GetByTaskID(ctx context.Context, userId uint, taskId uint
 		}
 	}
 
-	score, text := analysis.PreliminaryJudge(task)
+	score, text := j.analyzer.PreliminaryJudge(task)
 	judge := models.Judge{
 		TaskID:   task.ID,
 		TaskHash: taskHash,

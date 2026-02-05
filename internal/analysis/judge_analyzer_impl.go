@@ -18,20 +18,14 @@ func NewJudgeAnalyzer(llm llm.LLMClient) JudgeAnalyzer {
 	}
 }
 
-//curl --proxy socks5://ketch:ez1QYU2pM4@jdhlgkfjdhasdkas.polarrp.ru:55964 "https://generativelanguage.googleapis.com/v1beta/models/gemma-3-12b-it:generateContent"   -H "x-goog-api-key: AIzaSyBo7BKdOm6d-1GVwKEGWKEObGGzgIgEY1w"   -H 'Content-Type: application/json'   -X POST   -d '{
-//"contents": [
-//{
-//"parts": [
-//{
-//"text": "Ты араб, продающий арбузы на рынке, ответь на вопрос `Привет, как у тебя дела?`"
-//}
-//]
-//}
-//]
-//}'
+func (j judgeAnalyzer) PreliminaryJudge(task *models.Task) (score uint, text string) {
+	score = j.ScoreTask(task)
+	text = fallbackJudgeComment(score)
+	return score, text
+}
 
 func (j judgeAnalyzer) Analyze(ctx context.Context, task *models.Task) (score uint, text string, err error) {
-	score = ScoreTask(task)
+	score = j.ScoreTask(task)
 	title := strings.TrimSpace(task.Title)
 	desc := strings.TrimSpace(task.Description)
 
@@ -49,22 +43,16 @@ func (j judgeAnalyzer) Analyze(ctx context.Context, task *models.Task) (score ui
 	return score, text, nil
 }
 
-func ScoreTask(task *models.Task) uint {
+func (j judgeAnalyzer) ScoreTask(task *models.Task) uint {
 	title := strings.TrimSpace(task.Title)
 	desc := strings.TrimSpace(task.Description)
 
-	score := uint(5)
-
-	if title == "" {
-		score = 1
-	}
-
-	if len(desc) < 20 && score > 1 {
-		score--
-	}
-
+	score := rateByLength(desc)
 	if task.Status == "done" {
 		score++
+	}
+	if title == "" {
+		score = 1
 	}
 
 	if score < 1 {
@@ -77,19 +65,25 @@ func ScoreTask(task *models.Task) uint {
 	return score
 }
 
-func PreliminaryJudge(task *models.Task) (score uint, text string) {
-	score = ScoreTask(task)
-	text = fallbackJudgeComment(score)
-	return score, text
+func rateByLength(text string) uint {
+	length := len([]rune(text))
+
+	if length > 100 {
+		return 9
+	}
+
+	score := (length * 9) / 100
+	return uint(score)
 }
 
 func buildJudgePrompt(title, desc, status string, score uint) string {
 	return fmt.Sprintf(
 		`Ты мудрый и ироничный арабский судья задач.
+				Твоя задача на оценку;
 				Заголовок: "%s"
 				Описание: "%s"
 				Статус: %s
-				Предварительная оценка: %d/10
+				Твоя оценка: %d/10
 				
 				Дай короткий (не затягивай) комментарий с лёгким восточным юмором.`,
 		title,
