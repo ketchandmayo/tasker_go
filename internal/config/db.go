@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// ConnectDB TODO Refactoring DB
 func ConnectDB() *gorm.DB {
 	host := os.Getenv("DB_HOST")
 	user := os.Getenv("DB_USER")
