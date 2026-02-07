@@ -2,3 +2,6 @@ internal/config/jwt_config/jwt.go
 .env
 /.idea/inspectionProfiles/Project_Default.xml
 /go_build_tasker_go
+/.env.dis
+/.idea/data_source_mapping.xml
+/go_build_tasker_go_linux
